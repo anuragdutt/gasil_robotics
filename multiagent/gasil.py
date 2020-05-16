@@ -29,7 +29,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         # wrap parameters in distribution
         act_pd = act_pdtype_n[p_index].pdfromflat(p)
 
-        # TODO: 这里添加了 deterministic
+        # TODO:  deterministic
         determin_act_sample, act_sample = act_pd.sample(deterministic=True)
         # p_reg = tf.reduce_mean(tf.square(act_pd.flatparam()))
 
@@ -123,7 +123,6 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
         q_loss_td_0 = -tf.reduce_mean(weight_ph * tf.stop_gradient(td_0) * q)
         q_td_0_loss = tf.reduce_mean(weight_ph * tf.square(td_0))
 
-        # TODO: 这里对正向差异 (R-Q) > 0 做截断
         # mask = tf.where(return_ph - tf.squeeze(q) > 0.0,
         #                 tf.ones_like(return_ph), tf.zeros_like(return_ph))
         # TODO: add dis_2_end: return_confidence_factor
@@ -404,7 +403,6 @@ class GASIL_DDPGAgentTrainer(AgentTrainer):
     def is_exploration_enough(self, pool, min_pool_size):
         return len(pool) >= min_pool_size
 
-    # TODO: 只有在 deterministic reward 下可用，因为只有此时，时刻是对齐的，伙伴之间Reward一样
     adversary_sharing_indexes = None
 
     def update_self_imitation(self, agents, iteration):
@@ -426,13 +424,13 @@ class GASIL_DDPGAgentTrainer(AgentTrainer):
             expert_obs, expert_act, expert_rew, expert_obs_next, expert_done, expert_dis_2_end, expert_returns, expert_weights, expert_ranges = self.positive_pool.sample_index(
                 expert_idxes)
 
-            # 抽最新的 on policy 样本轨迹
+            # on policy 样本轨迹
             policy_idxes = self.trajectory_pool.make_index(FLAGS.gan_batch_size)
             policy_obs, policy_act, policy_rew, policy_obs_next, policy_done, policy_dis_2_end, policy_returns, policy_weights, policy_ranges = self.trajectory_pool.sample_index(
                 policy_idxes)
 
             # TODO 1.2: train discriminator
-            # (1) 首先只模仿 action 分布 (只采用专家样本数据)
+
             on_policy_act = self.get_actions(expert_obs)
             discriminator_loss_action, generator_indicator_action= self.discriminator_train(
                 *[expert_obs, expert_act, expert_obs, on_policy_act, self.state_action_confidence, expert_dis_2_end,
@@ -440,7 +438,7 @@ class GASIL_DDPGAgentTrainer(AgentTrainer):
             discriminator_loss_action_rt += discriminator_loss_action
             generator_indicator_action_rt += generator_indicator_action
 
-            # (2) 模仿 state action 分布 (采用专家跟自己生成的样本)
+            # (2) state action
             discriminator_loss_state_action, generator_indicator_state_action= self.discriminator_train(
                 *[expert_obs, expert_act, policy_obs, policy_act, self.state_action_confidence, expert_dis_2_end,
                   policy_dis_2_end])
@@ -453,13 +451,13 @@ class GASIL_DDPGAgentTrainer(AgentTrainer):
         generator_indicator_state_action_rt /= FLAGS.train_discriminator_k
 
         # TODO 2: cal shaping reward
-        # (1) 首先只模仿 action 分布 (只采用专家样本数据) # TODO: 专家样本的self-imitation
+        # (1) 
         imitation_reward_action = self.imitation_reward_values(*[expert_obs, expert_act])
-        # (2) 模仿 state action 分布 (采用专家跟自己生成的样本)
+        # (2) 
         imitation_reward_state_action = self.imitation_reward_values(*[policy_obs, policy_act])
 
         # TODO 3: train generator/train policy gradient
-        # (1) 首先只模仿 action 分布 (只采用专家样本数据)
+        # (1) 
         # collect replay sample from all agents
         if self.agent_index < FLAGS.num_adversaries:  # predator
             begin = 0
@@ -489,7 +487,7 @@ class GASIL_DDPGAgentTrainer(AgentTrainer):
         # train p network.
         p_losses_action = self.p_train(*(obs_n + act_n))
 
-        # (2) 模仿 state action 分布 (采用专家跟自己生成的样本)
+        # (2) 
         # collect replay sample from all agents
         obs_n, obs_next_n, act_n = [], [], []
         for i in range(begin, end):  # sample from friends experience
@@ -507,7 +505,7 @@ class GASIL_DDPGAgentTrainer(AgentTrainer):
             target_q += policy_rew + self.imitation_lambda * imitation_reward_state_action + FLAGS.gamma * (
                     1.0 - policy_done) * target_q_next
         target_q /= num_sample
-        # TODO: 这只是普通轨迹，应该不需要算 n-step return
+        # TODO: 
         q_losses_state_action = self.q_train(
             # *(obs_n + act_n + [target_q, policy_weights, self.lambda1, policy_dis_2_end, policy_returns]))
             *(obs_n + act_n + [target_q, policy_weights, 0, policy_dis_2_end, policy_returns]))

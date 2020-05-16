@@ -30,7 +30,7 @@ def p_train(make_obs_ph_n, act_space_n, p_index, p_func, q_func, optimizer, grad
         # wrap parameters in distribution
         act_pd = act_pdtype_n[p_index].pdfromflat(p)
 
-        # TODO: 这里添加了 deterministic action
+        # TODO: deterministic action
         determin_act_sample, act_sample = act_pd.sample(deterministic=True)
         # p_reg = tf.reduce_mean(tf.square(act_pd.flatparam()))
 
@@ -123,7 +123,7 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
         q_loss_td_0 = -tf.reduce_mean(weight_ph * tf.stop_gradient(td_0) * q)
         q_td_0_loss = tf.reduce_mean(weight_ph * tf.square(td_0))
 
-        # TODO: 这里对正向差异 (R-Q) > 0 做截断
+        # TODO: (R-Q) > 0 
         # mask = tf.where(return_ph - tf.squeeze(q) > 0.0,
         #                 tf.ones_like(return_ph), tf.zeros_like(return_ph))
         # TODO: add dis_2_end: return_confidence_factor
