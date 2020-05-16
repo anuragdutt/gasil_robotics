@@ -1,11 +1,11 @@
 import numpy as np
 import tensorflow as tf
 
-import algorithm.common.tf_utils as U
-from algorithm.trainer import AgentTrainer
-from algorithm.common.distributions2 import make_pdtype
-from algorithm.common.reinforce_utils import make_update_exp, natural_exp_inc
-from algorithm.prioritized_experience_replay_buffer.utils import add_episode, add_trajectory
+import common.tf_utils as U
+from trainer import AgentTrainer
+from common.distributions2 import make_pdtype
+from common.reinforce_utils import make_update_exp, natural_exp_inc
+from prioritized_experience_replay_buffer.utils import add_episode, add_trajectory
 
 FLAGS = tf.app.flags.FLAGS  # alias
 
