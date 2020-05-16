@@ -141,7 +141,6 @@ def build_agents(action_dim_n, observation_dim_n, policies_name):
 
 def reload_previous_models(session, env):
     import gc
-    # 加载提前训练好的 prey 策略
     if FLAGS.reload_prey:
         prey_vars = []
         for idx in range(FLAGS.num_adversaries, env.n):
@@ -310,8 +309,7 @@ def train():
 
             # step forward observations
             obs_n = new_obs_n
-
-            # TODO: 这里记录每一轮最大reward
+            
             # record some analysis information
             for i, rew in enumerate(rew_n):
                 episode_rewards[-1] += rew

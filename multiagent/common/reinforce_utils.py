@@ -25,13 +25,13 @@ def make_update_exp(vals, target_vals):
 import math
 def natural_exp_inc(init_param, max_param, global_step, current_step, inc_step=1000, inc_rate=0.5, stair_case=False):
     '''
-    :param init_param:  初始参数大小
-    :param max_param:  最大参数（参数增长上界）
-    :param global_step: 全局增长步数
-    :param current_step: 当前步数
-    :param inc_step: 实现增长的频率
-    :param inc_rate: 增长率
-    :param stair_case: 是否阶梯状增长
+    :param init_param:  
+    :param max_param:  
+    :param global_step: 
+    :param current_step: 
+    :param inc_step: 
+    :param inc_rate: 
+    :param stair_case: 
     :return:
     '''
     p = (global_step - current_step) / inc_step
@@ -43,13 +43,13 @@ def natural_exp_inc(init_param, max_param, global_step, current_step, inc_step=1
 
 def natural_exp_decay(init_param, min_param, global_step, current_step, decay_step, decay_rate=0.5, stair_case=False):
     '''
-    :param init_param: 初始参数大小
-    :param min_param: 最小参数
-    :param global_step: 全局下降步数
-    :param current_step: 当前步数
-    :param decay_step: 实现衰减的频率
-    :param decay_rate: 衰减率
-    :param stair_case: 是否阶梯状衰减
+    :param init_param: 
+    :param min_param: 
+    :param global_step: 
+    :param current_step: 
+    :param decay_step: 
+    :param decay_rate: 
+    :param stair_case: 
     :return:
     '''
     p = current_step / decay_step
