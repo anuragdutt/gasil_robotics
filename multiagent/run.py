@@ -296,8 +296,8 @@ def train():
             info_n = info_n['n']
             episode_step += 1
 
-            done = all(done_n)  # 达到任务
-            terminal = (episode_step >= FLAGS.max_episode_len)  # 最大步数
+            done = all(done_n) 
+            terminal = (episode_step >= FLAGS.max_episode_len)
             ended = done or terminal
 
             # collect experience
